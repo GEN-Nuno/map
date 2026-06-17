@@ -1,0 +1,53 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "npm: build",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "node_modules/esbuild/bin/esbuild",
+        "src/extension.ts",
+        "--bundle",
+        "--platform=node",
+        "--external:vscode",
+        "--outfile=dist/extension.js",
+        "--format=cjs"
+      ],
+      "options": {
+        "env": {
+          "PATH": "${workspaceFolder}/.node/node-v22.14.0-win-x64;${env:PATH}"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$esbuild"]
+    },
+    {
+      "label": "npm: watch",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "node_modules/esbuild/bin/esbuild",
+        "src/extension.ts",
+        "--bundle",
+        "--platform=node",
+        "--external:vscode",
+        "--outfile=dist/extension.js",
+        "--format=cjs",
+        "--watch",
+        "--sourcemap"
+      ],
+      "options": {
+        "env": {
+          "PATH": "${workspaceFolder}/.node/node-v22.14.0-win-x64;${env:PATH}"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": ["$esbuild-watch"]
+    }
+  ]
+}
+
