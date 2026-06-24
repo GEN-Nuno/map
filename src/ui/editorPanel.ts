@@ -418,6 +418,9 @@ export class EditorPanel {
     });
 
     row.addEventListener("dragstart", (e) => {
+      // ネストした行では親ブロックの dragstart にも伝播してしまうため、
+      // 必ず stopPropagation して「最も内側の項目」を掴んだものとして扱う。
+      e.stopPropagation();
       this.dragId = itemId;
       row.classList.add("dragging");
       if (e.dataTransfer) {
@@ -426,7 +429,8 @@ export class EditorPanel {
       }
     });
 
-    row.addEventListener("dragend", () => {
+    row.addEventListener("dragend", (e) => {
+      e.stopPropagation();
       row.draggable = false;
       row.classList.remove("dragging");
       this.dragId = undefined;

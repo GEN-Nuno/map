@@ -15,6 +15,12 @@ import {
   exportShelfJson,
   importShelfJson,
 } from "../io/exporters";
+import {
+  applyFullBackup,
+  describeStorage,
+  exportFullBackup,
+  importFullBackup,
+} from "../io/backup";
 
 /** 上部ツールバー: サンプル/新規/保存(自動)/入出力。 */
 export class Toolbar {
@@ -73,6 +79,19 @@ export class Toolbar {
       button("⬆ 読込", () => this.importJson(), {
         class: "tb",
         title: "JSON 本棚を読み込む",
+      }),
+      button("📦 全データ", () => this.exportBackup(), {
+        class: "tb",
+        title:
+          "現在の本棚 + 保存ライブラリをまとめて 1 ファイルに書き出す（アプリ更新・配布時の引き継ぎ用）",
+      }),
+      button("📦 復元", () => this.importBackup(), {
+        class: "tb",
+        title: "全データバックアップ JSON を読み込み、現在のデータを置き換える",
+      }),
+      button("ℹ 保存先", () => this.showStorageInfo(), {
+        class: "tb",
+        title: "本棚データの保存場所を表示",
       }),
       button("⬇ Mermaid", () => this.exportMermaid(), {
         class: "tb",
@@ -195,6 +214,50 @@ export class Toolbar {
     if (shelf) {
       this.store.replaceShelf(shelf);
     }
+  }
+
+  private exportBackup(): void {
+    exportFullBackup(this.store.shelf, navigator.userAgent);
+  }
+
+  private async importBackup(): Promise<void> {
+    const backup = await importFullBackup();
+    if (!backup) {
+      return;
+    }
+    if (
+      !confirm(
+        "バックアップを適用すると、現在の本棚と保存済みライブラリが上書きされます。続行しますか？"
+      )
+    ) {
+      return;
+    }
+    const result = applyFullBackup(backup, (s) => this.store.replaceShelf(s));
+    const msgs: string[] = [];
+    msgs.push(result.appliedCurrent ? "現在の本棚を復元しました。" : "現在の本棚は含まれていませんでした。");
+    msgs.push(result.appliedLibrary ? "保存済みライブラリを復元しました。" : "保存済みライブラリは含まれていませんでした。");
+    alert(msgs.join("\n"));
+    this.render();
+  }
+
+  private showStorageInfo(): void {
+    const info = describeStorage();
+    const lines = [
+      "■ 本棚データの保存場所",
+      "",
+      "ブラウザ内の localStorage に保存されています（外部サーバには送信されません）。",
+      "",
+      `オリジン: ${info.origin}`,
+      `現在の本棚キー : ${info.currentKey} (${info.currentBytes.toLocaleString()} 文字)`,
+      `保存ライブラリキー: ${info.libraryKey} (${info.libraryBytes.toLocaleString()} 文字)`,
+      "",
+      "■ アプリ更新・配布時の引き継ぎ",
+      "・同じ URL/同じファイルパスで開く限り、コード修正・再ビルドしても自動で引き継がれます。",
+      "・別フォルダ移動・別 PC 配布・ブラウザのキャッシュ削除をすると失われます。",
+      "・引き継ぎたい場合は事前に「📦 全データ」を押して JSON を保存し、",
+      "  新しい環境で「📦 復元」から読み込んでください。",
+    ];
+    alert(lines.join("\n"));
   }
 
   private exportMermaid(): void {

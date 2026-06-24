@@ -133,6 +133,34 @@ select.grow {
   max-width: 280px;
 }
 
+/* ---------- startup banner ---------- */
+.startup-banner {
+  margin: 10px 12px;
+  padding: 14px 16px;
+  background: #fff7cd;
+  border: 1px solid #e0c200;
+  border-radius: 6px;
+  color: #4a3a00;
+}
+.startup-banner.hidden {
+  display: none;
+}
+.startup-banner .banner-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.startup-banner .banner-body {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.startup-banner .banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 /* ---------- layout ---------- */
 .layout {
   flex: 1;
